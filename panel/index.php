@@ -55,8 +55,8 @@ $userinfo = $getdata->my_sql_query(NULL, "user", "user_key='" . $_SESSION['ukey'
     </div>
     <div id="leftcolumn">
         <?php
-        $cl = array("green", "green", "green", "green", "green", "green");
-        $ic = array("1", "1", "1", "1", "1", "1");
+        $cl = array("active", "green", "green", "green", "green", "green");
+        $ic = array("2", "1", "1", "1", "1", "1");
         $menu = $getdata->my_sql_query("menu", "list", "cases='" . @$_GET['p'] . "'");
         // 1 คือไม่ active 2 คือ active
         switch ($menu->menu) {
