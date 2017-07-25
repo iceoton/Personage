@@ -1,12 +1,4 @@
 <?php
-//--------------------------------------
-// Clear@Core->connect
-// Publicdate : Sep, 1 2013
-// Programmer : khumphol tearmpin
-// For : Filetopia
-// Website : http://clearprojects.in.th
-//--------------------------------------
-
 class clear_db{
 	function my_sql_connect($host,$username,$password,$dbname){
 		$connect= mysql_connect($host, $username, $password,true) or die(mysql_error());
@@ -83,7 +75,7 @@ class clear_db{
 		mysql_query($cs2) or die('Error query: ' . mysql_error());
 		$cs3 = "SET character_set_connection = utf8";
 		mysql_query($cs3) or die('Error query: ' . mysql_error());
-	
+
 		mysql_query("SET NAMES utf8");
 		mysql_query("SET CHARACTER SET utf8");
 		mysql_query("SET collation_connection='utf8_unicode_ci'");
@@ -101,10 +93,10 @@ class clear_db{
 		mysql_query($cs2) or die('Error query: ' . mysql_error());
 		$cs3 = "SET character_set_connection = tis620";
 		mysql_query($cs3) or die('Error query: ' . mysql_error());
-		
+
 		mysql_query("SET NAMES tis620");
-		mysql_query("SET CHARACTER SET tis620");		
-		mysql_query("SET collation_connection='tis620_thai_ci'");		
+		mysql_query("SET CHARACTER SET tis620");
+		mysql_query("SET collation_connection='tis620_thai_ci'");
 		mysql_query("SET character_set_results=tis620");
 		mysql_query("SET character_set_client='tis620'");
 		mysql_query("SET character_set_connection='tis620'");
