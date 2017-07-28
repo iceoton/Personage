@@ -1250,6 +1250,13 @@ border:1px solid #abc7ff;
 	border-bottom:5px solid #1148b9;
 	
 }
+.slidingDiv {
+	background-color: #abc7ff;
+	padding:10px;
+	margin:10px;
+	border-bottom:5px solid #1148b9;
+	
+}
 
 #show_hide {
 	display:none;
