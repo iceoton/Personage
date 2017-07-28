@@ -42,9 +42,9 @@ function sql_todate($d){
     });
   } );
   </script>
-<!-- <script language="javascript">
-    function deleteUser(mkey) {
-        if (confirm("เมื่อคุณลบผู้ใช้งานแล้ว บันทึกทั้งหมดจะถูกลบไปด้วย คุณต้องการจะลบไช่หรือไม่ ?")) {
+<script language="javascript">
+    function deleteLeave(mkey) {
+        if (confirm("เมื่อคุณลบการลาแล้ว จะย้อนกลับไปแก้ไขไม่ได้ คุณต้องการจะลบไช่หรือไม่ ?")) {
             if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
                 xmlhttp = new XMLHttpRequest();
             } else {// code for IE6, IE5
@@ -55,11 +55,12 @@ function sql_todate($d){
                     document.getElementById(mkey).innerHTML = '';
                 }
             }
-            xmlhttp.open("GET", "../modules/users/delete.php?mkey=" + mkey + "&ttype=delete_user", true);
+            xmlhttp.open("GET", "../modules/leave/delete.php?mkey=" + mkey + "&ttype=delete_leave", true);
             xmlhttp.send();
         }
+        window.location.href=window.location.href;
     }
-</script> -->
+</script>
 <?php
 // $action=$_GET['action']; 
 // $photofilename = md5(time("now"));
@@ -224,6 +225,9 @@ echo @$display_alert;
             <td>วันที่เขียนใบลา</td>
             <td>หมายเหตุ</td>
             <td>ดาวน์โหลด PDF</td>
+            <?php if($_SESSION['uclass']=='0' || $_SESSION['uclass']=='2') {
+                    echo "<td>จัดการ</td>";
+                }?>
         </tr>
         <?php
         $i = 0;
@@ -267,15 +271,15 @@ echo @$display_alert;
         }
         while ($showLeave = mysql_fetch_object($getLeave)) {
             $i++;
-            
+            $bg = 'bgcolor="#9be2ff"';
             // if( $showLeave->user_key == $_SESSION['ukey'] ) {
                 $count_stat++;
             ?>
                 <tr class="aqua_treatment_text" id="" >
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php echo $count_stat; ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php 
                         $getUser = $getdata->my_sql_select(NULL, "user", "user.user_key='".$showLeave->user_key."'");
                         if ($u = mysql_fetch_object($getUser)) {
@@ -285,7 +289,7 @@ echo @$display_alert;
                         }
                      ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php 
                      $t = $showLeave->type; 
                     if($t == '0'){
@@ -301,16 +305,16 @@ echo @$display_alert;
 
                     ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php echo sql_todate($showLeave->start_date); ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php echo sql_todate($showLeave->end_date); ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php echo $showLeave->amount_day; ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php $s = $showLeave->status; 
 
                      if($s =='0'){
@@ -324,7 +328,7 @@ echo @$display_alert;
                      }
                      ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php 
                         $getApprove = $getdata->my_sql_select(NULL, "user", "user.user_key='".$showLeave->approve_by."'");
                         if ($approver = mysql_fetch_object($getApprove)) {
@@ -336,13 +340,13 @@ echo @$display_alert;
                      // echo $showLeave->approve_by; 
                         ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php echo sql_todate($showLeave->create_date); ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                      <?php echo $showLeave->note; ?>
                  </td>
-                 <td>
+                 <td <?php echo @$bg; ?>>
                     <?php 
                     if($showLeave->type=='0'){
                         $type = 'ลาป่วย';
@@ -377,6 +381,23 @@ echo @$display_alert;
                         <input type="text" name="department" value="<?php echo $department;?>" hidden />
                         <input type="submit" name="pdf" value="download" />
                     </form>
+                    <?php } ?>
+                </td>
+                <td align="center" <?php echo @$bg; ?>>
+                    <?php if($_SESSION['uclass']=='0') { ?>
+                    <a href="?p=leave_detail&key=<?php echo @$showLeave->code; ?>">
+                        <div class="button_symbol green">
+                            <img src="../media/icons/set/white/detail.png" width="25" height="25" alt=""
+                                 title="รายละเอียด"/>
+                        </div>
+                    </a>
+                    <?php } else if($_SESSION['uclass']=='2'){ ?>
+                    <a onClick="javascript:deleteLeave('<?php echo @$showLeave->code; ?>');">
+                        <div class="button_symbol green">
+                            <img src="../media/icons/set/white/delete1.png" width="25" height="25" alt=""
+                                 title="ลบข้อมูล"/>
+                        </div>
+                    </a>
                     <?php } ?>
                 </td>
              </tr>
