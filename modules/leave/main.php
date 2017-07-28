@@ -2,10 +2,7 @@
 function sql_todate($d){
     return (new DateTime($d))->format("d/m/Y");
 }
-if ($_SESSION['uclass'] != 2) {
-    // ถ้าไม่ใช่ admin
-    echo '<script>window.location="?p=settings"</script>';
-}
+
 ?>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -217,6 +214,7 @@ echo @$display_alert;
             <td width="19%">กลุ่มผู้ใช้งาน</td>
             <td width="18%">จัดการ</td> -->
             <td>ลำดับ</td>
+            <td>ผู้ลา</td>
             <td>ประเภท</td>           
             <td>เริ่มลาวันที่</td>
             <td>ถึงวันที่</td>
@@ -250,20 +248,42 @@ echo @$display_alert;
                 $s = " AND ". $s;
             }
             $where = $c.$b.$s;
+
+            if(strlen($where)>0 && $_SESSION['uclass']=='1'){
+                $where = $where." AND user_key='".$_SESSION['ukey']."'";
+            }else if($_SESSION['uclass']=='1'){
+                $where = "user_key='".$_SESSION['ukey']."'";
+            }
             // echo $where;
+            // echo $_SESSION['uclass'];
             $getLeave = $getdata->my_sql_select(NULL, "leave_paper", $where);
         }else {
-            $getLeave = $getdata->my_sql_select(NULL, "leave_paper", NULL);
+            if($_SESSION['uclass']=='1'){
+                $where = "user_key='".$_SESSION['ukey']."'";
+            }else{
+                $where = "";
+            }
+            $getLeave = $getdata->my_sql_select(NULL, "leave_paper", $where);
         }
         while ($showLeave = mysql_fetch_object($getLeave)) {
             $i++;
             
-            if( $showLeave->user_key == $_SESSION['ukey'] ) {
+            // if( $showLeave->user_key == $_SESSION['ukey'] ) {
                 $count_stat++;
             ?>
                 <tr class="aqua_treatment_text" id="" >
                  <td>
                      <?php echo $count_stat; ?>
+                 </td>
+                 <td>
+                     <?php 
+                        $getUser = $getdata->my_sql_select(NULL, "user", "user.user_key='".$showLeave->user_key."'");
+                        if ($u = mysql_fetch_object($getUser)) {
+                            echo $u->name ." ". $u->lastname;
+                        }else{
+                            echo "";
+                        }
+                     ?>
                  </td>
                  <td>
                      <?php 
@@ -306,7 +326,6 @@ echo @$display_alert;
                  </td>
                  <td>
                      <?php 
-                        $j = 0;
                         $getApprove = $getdata->my_sql_select(NULL, "user", "user.user_key='".$showLeave->approve_by."'");
                         if ($approver = mysql_fetch_object($getApprove)) {
                             echo $approver->name ." ". $approver->lastname;
@@ -362,7 +381,7 @@ echo @$display_alert;
                 </td>
              </tr>
             <?php
-            }
+            
         }
         ?>
     </table>
