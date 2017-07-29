@@ -362,7 +362,7 @@ echo @$display_alert;
                     $end = sql_todate($showLeave->end_date);
                     $date = sql_todate($showLeave->create_date);
 
-                    $getUser = $getdata->my_sql_select(NULL, "user", "(user_key='".$_SESSION['ukey']."')");
+                    $getUser =  $getdata->my_sql_select(NULL, "user", "(user_key='".($showLeave->user_key)."')");
                     if ($u = mysql_fetch_object($getUser)) { 
                         $fullname = ($u->name) ." ". ($u->lastname);
                         $position = ($u->position);
