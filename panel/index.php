@@ -64,15 +64,15 @@ $userinfo = $getdata->my_sql_query(NULL, "user", "user_key='" . $_SESSION['ukey'
                 $cl = array("active", "green", "green", "green", "green", "green");
                 $ic = array("2", "1", "1", "1", "1", "1");
                 break;
-            case "leave"        :
+            case "signing"            :
                 $cl = array("green", "active", "green", "green", "green", "green");
                 $ic = array("1", "2", "1", "1", "1", "1");
                 break;
-            case "users"    :
+            case "leave"        :
                 $cl = array("green", "green", "active", "green", "green", "green");
                 $ic = array("1", "1", "2", "1", "1", "1");
                 break;
-            case "history"            :
+            case "users"    :
                 $cl = array("green", "green", "green", "active", "green", "green");
                 $ic = array("1", "1", "1", "2", "1", "1");
                 break;
@@ -91,19 +91,19 @@ $userinfo = $getdata->my_sql_query(NULL, "user", "user_key='" . $_SESSION['ukey'
                     src="../media/icons/nav/main_<?php echo @$ic[0]; ?>.png" width="20" height="20">หน้าหลัก<span
                     id="xpatient_today"></span></div>
         </a>
-        <a href="?p=sign">
-            <div class="button_menu <?php echo @$cl[3]; ?>"><img
-                    src="../media/icons/nav/payaqua_<?php echo @$ic[3]; ?>.png" width="20" height="20">การลงชื่อเข้างาน
-            </div>
-        </a>
-        <a href="?p=users">
-            <div class="button_menu <?php echo @$cl[2]; ?>"><img
-                    src="../media/icons/nav/member_<?php echo @$ic[2]; ?>.png" width="20" height="20">รายชื่อผู้ใช้งาน
+        <a href="?p=signing">
+            <div class="button_menu <?php echo @$cl[1]; ?>"><img
+                    src="../media/icons/nav/payaqua_<?php echo @$ic[1]; ?>.png" width="20" height="20">การลงชื่อเข้างาน
             </div>
         </a>
         <a href="?p=leave">
-            <div class="button_menu <?php echo @$cl[1]; ?>"><img
-                    src="../media/icons/nav/book_<?php echo @$ic[1]; ?>.png" width="20" height="20">การลางาน
+            <div class="button_menu <?php echo @$cl[2]; ?>"><img
+                        src="../media/icons/nav/book_<?php echo @$ic[2]; ?>.png" width="20" height="20">การลางาน
+            </div>
+        </a>
+        <a href="?p=users">
+            <div class="button_menu <?php echo @$cl[3]; ?>"><img
+                    src="../media/icons/nav/member_<?php echo @$ic[3]; ?>.png" width="20" height="20">รายชื่อผู้ใช้งาน
             </div>
         </a>
         <a href="?p=settings">
