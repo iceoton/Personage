@@ -1,7 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('Asia/Bangkok');
-ini_set('display_errors', 'on');
+ini_set('display_errors', 'off');
 require("config.core.php");
 require("connect.core.php");
 require("functions.core.php");
