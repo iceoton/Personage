@@ -1,10 +1,14 @@
 <?php
 date_default_timezone_set('Asia/Bangkok');
 ini_set('display_errors', 'on');
-
+function sql_todate($d){
+    return (new DateTime($d))->format("d/m/Y");
+}
 $photofilename = md5(time("now"));
+
 if (isset($_POST['save'])) {
-    $user_key = md5(addslashes($_POST['name']) . addslashes($_POST['lastname']) . time("now"));
+    date_default_timezone_set('Asia/Bangkok');
+
     if (!defined('UPLOADDIR')) define('UPLOADDIR', '../resource/signing/images/');
     if (is_uploaded_file($_FILES["photo"]["tmp_name"])) {
         $File_name = $_FILES["photo"]["name"];
@@ -15,30 +19,30 @@ if (isset($_POST['save'])) {
         } else {
             echo '<script>alert("Please select JPG image only !")</script>';
         }
-    }
-    $checkuser = $getdata->my_sql_show_rows("user", "username='" . addslashes($_POST['username']) . "'");
-    if ($checkuser == 0) {
-        if (addslashes($_POST['password']) == addslashes($_POST['renew_password']) && addslashes($_POST['password']) != NULL) {
-            $password = md5(addslashes($_POST['password']));
-            if ($File_name != NULL) {
-                resizeUserThumb($fn);
-                $getdata->my_sql_insert("user", "user_key='" . $user_key . "',name='" . addslashes($_POST['name']) . "',lastname='" . addslashes($_POST['lastname']) . "',username='" . addslashes($_POST['username']) . "',password='" . $password . "',email='" . addslashes($_POST['email']) . "',tel='" . addslashes($_POST['tel']) . "',position='" . addslashes($_POST['position']) . "',department='" . addslashes($_POST['department']) . "',photo='" . $fn . "',user_class='" . addslashes($_REQUEST['user_class']) . "',user_status='" . addslashes($_REQUEST['user_status']) . "'");
-            } else if (addslashes($_POST['h_user_photo']) != NULL) {
-                $photo = addslashes($_POST['h_user_photo']) . ".jpg";
-                resizeUserThumb($photo);
-                $getdata->my_sql_insert("user", "user_key='" . $user_key . "',name='" . addslashes($_POST['name']) . "',lastname='" . addslashes($_POST['lastname']) . "',username='" . addslashes($_POST['username']) . "',password='" . $password . "',email='" . addslashes($_POST['email']) . "',tel='" . addslashes($_POST['tel']) . "',position='" . addslashes($_POST['position']) . "',department='" . addslashes($_POST['department']) . "',photo='" . $photo . "',user_class='" . addslashes($_REQUEST['user_class']) . "',user_status='" . addslashes($_REQUEST['user_status']) . "'");
-            } else {
-                $getdata->my_sql_insert("user", "user_key='" . $user_key . "',name='" . addslashes($_POST['name']) . "',lastname='" . addslashes($_POST['lastname']) . "',username='" . addslashes($_POST['username']) . "',password='" . $password . "',email='" . addslashes($_POST['email']) . "',tel='" . addslashes($_POST['tel']) . "',position='" . addslashes($_POST['position']) . "',department='" . addslashes($_POST['department']) . "',user_class='" . addslashes($_REQUEST['user_class']) . "',user_status='" . addslashes($_REQUEST['user_status']) . "'");
-            }
-        } else {
-            //password
-            $display_alert = '<div class="alert_box red"><img src="../media/icons/set/white/alert2.png" width="32" height="32">รหัสผ่านไม่ตรงกัน !</div>';
-        }
 
-    } else {
-        //nouser
-        $display_alert = '<div class="alert_box red"><img src="../media/icons/set/white/alert2.png" width="32" height="32">ชื่อผู้ใช้งานนี้ไม่พร้อมใช้งาน !</div>';
     }
+    $fixed_time = date("08:00:00");
+    $start_time = date("06:00:00");
+    $current_date = date('Y-m-d');
+    $current_time = date('H:i:s');
+    if($current_time <= $fixed_time && $current_time >= $start_time){
+        $status = 'NORMAL';
+    }else{
+        $status = 'LATE';
+    }
+    //upload
+    if ($File_name != NULL) {
+        resizeUserThumb($fn);
+        $getdata->my_sql_insert("checkin","time='".$current_time."', date='".$current_date."', user_key='".$_SESSION['ukey']."', status='".$status."', photo='".$fn."'");
+    }else if(addslashes($_POST['h_user_photo']) != NULL){
+        $photo = addslashes($_POST['h_user_photo']) . ".jpg";
+        resizeUserThumb($photo);
+        $getdata->my_sql_insert("checkin","time='".$current_time."', date='".$current_date."', user_key='".$_SESSION['ukey']."', status='".$status."', photo='".$photo."'");
+    }else{
+        //$getdata->my_sql_insert("checkin","time='".$current_time."', date='".$current_date."', user_key='".$_SESSION['ukey']."', status='".$status."'");\
+        echo '<script>alert("กรุณาถ่ายรูปก่อน!");</script>';
+    }
+
 }
 ?>
 <script type="text/javascript" src="../plugins/webcam/webcam.js"></script>
@@ -51,6 +55,8 @@ if (isset($_POST['save'])) {
 <div class="aqua_hbar"><img src="../media/icons/icons/payaqua.png" width="32" height="32">ลงชื่อเข้างาน</div>
 <fieldset class="field_std">
     <legend>ถ่ายรูปเข้างาน/ออกงาน</legend>
+    <!-- <div id="local"></div> -->
+    <div id="server" style="text-align: center;"></div>
     <form action="" method="post" enctype="multipart/form-data" name="form1">
         <table width="100%" border="0">
             <tr>
@@ -100,3 +106,120 @@ if (isset($_POST['save'])) {
 
     </form>
 </fieldset>
+<script type="text/javascript">
+var xmlHttp;
+function srvTime(){
+    try {
+        //FF, Opera, Safari, Chrome
+        xmlHttp = new XMLHttpRequest();
+    }
+    catch (err1) {
+        //IE
+        try {
+            xmlHttp = new ActiveXObject('Msxml2.XMLHTTP');
+        }
+        catch (err2) {
+            try {
+                xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
+            }
+            catch (eerr3) {
+                //AJAX not supported, use CPU time.
+                alert("AJAX not supported");
+            }
+        }
+    }
+    xmlHttp.open('HEAD',window.location.href.toString(),false);
+    xmlHttp.setRequestHeader("Content-Type", "text/html");
+    xmlHttp.send('');
+    return xmlHttp.getResponseHeader("Date");
+}
+function timenow(){
+    var now= new Date(srvTime()),
+    ampm= 'am',
+    h= now.getHours(),
+    m= now.getMinutes(),
+    s= now.getSeconds();
+    if(h>= 12){
+        if(h>12) h -= 12;
+        ampm= 'pm';
+    }
+
+    if(m<10) m= '0'+m;
+    if(s<10) s= '0'+s;
+    return now.toLocaleDateString()+ ' ' + h + ':' + m + ':' + s + ' ' + ampm;
+}
+
+function timenow_refDb(){
+    var now= new Date(srvTime()),
+    h= now.getHours(),
+    m= now.getMinutes(),
+    s= now.getSeconds();
+
+    if(m<10) m= '0'+m;
+    if(s<10) s= '0'+s;
+    return h + ':' + m + ':' + s;
+}
+
+function Datenow_refDb(){
+    var now= new Date(srvTime()),
+    day= now.getDate(),
+    month=now.getMonth()+1,
+    year=now.getFullYear();
+    return  year+'-'+month+'-'+day;
+}
+
+$(document).ready(function(){
+    setInterval(function(){
+        // var localTime = new Date();
+        //   $('#local').html("Local machine time is: " + localTime + "<br>");
+          $('#server').html("ขณะนี้เวลา  " + timenow(srvTime()));
+    }, 1000);
+});
+</script>
+
+<div class="field_bar">
+<table width="100%" border="0">
+  <tr class="aqua_treatment_text_header">
+    <td width="6%">ลำดับ</td>
+    <td width="9%">รูปถ่าย</td>
+    <td width="15%">เวลา</td>
+    <td width="24%">วันที่</td>
+    <td width="17%">สถานะ</td>
+  </tr>
+  <?php
+  $i=0;
+  $getdata->my_sql_set_utf8();
+  $getcheckin_thisuser = mysql_query("SELECT u.user_key AS ukey, ck.photo AS photo, ck.time AS time, ck.date AS date, ck.status AS status ".
+    "FROM checkin AS ck, user AS u WHERE ck.user_key=u.user_key AND u.user_key='".$_SESSION['ukey']."' ORDER BY ck.id DESC");
+  while($show_checkin = mysql_fetch_object($getcheckin_thisuser)){
+        $i++;
+        // $bg = 'bgcolor="#CCCCCC"';
+        // $bg = 'bgcolor="#8DC2FF"';
+  ?>
+  <tr class="aqua_treatment_text" id="<?php echo @$show_checkin->ukey;?>">
+    <td align="center" bgcolor="#9be2ff"><?php echo @$i;?></td>
+    <td align="center" bgcolor="#9be2ff"><img src="../resource/signing/images/<?php echo @$show_checkin->photo;?>" width="50"  alt="" id="photo_border"/></td>
+    <td align="center" bgcolor="#9be2ff"><?php echo @$show_checkin->time;?></td>
+    <td align="center" bgcolor="#9be2ff"><?php echo sql_todate(@$show_checkin->date); ?></td>
+    <td align="center" bgcolor="#9be2ff"><?php echo @$show_checkin->status;?></td>
+  </tr>
+  <?php
+    }
+  ?>
+</table>
+</div>
+<!-- <button id="btnExport" onclick="exportData();"> EXPORT </button>
+<script type="text/javascript" src="../js/table-export.js"></script>
+<script type="text/javascript" charset="utf-8">
+function exportData(){
+    $.fn.tableExport.xls = {
+        defaultClass: "xls",
+        buttonContent: "Export to xls",
+        separator: "\t",
+        mimeType: "application/vnd.ms-excel;charset=utf-8",
+        fileExtension: ".xls"
+    };
+    $.fn.tableExport.charset = "charset=utf-8";
+    var blob = $("#headerTable").tableExport({formats:['xls']});
+}
+</script> -->

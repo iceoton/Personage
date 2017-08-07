@@ -4,7 +4,7 @@ error_reporting(0); ?>
 <html>
 <head>
     <title>Personage - ระบบบริหารจัดการบุคลากรออนไลน์</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" http-equiv="Content-Type">
     <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../css/style.css"/>
