@@ -55,34 +55,38 @@ $userinfo = $getdata->my_sql_query(NULL, "user", "user_key='" . $_SESSION['ukey'
     </div>
     <div id="leftcolumn">
         <?php
-        $cl = array("active", "green", "green", "green", "green", "green");
-        $ic = array("2", "1", "1", "1", "1", "1");
+        $cl = array("active", "green", "green", "green", "green", "green", "green");
+        $ic = array("2", "1", "1", "1", "1", "1", "1");
         $menu = $getdata->my_sql_query("menu", "list", "cases='" . @$_GET['p'] . "'");
         // 1 คือไม่ active 2 คือ active
         switch ($menu->menu) {
             case "main"            :
-                $cl = array("active", "green", "green", "green", "green", "green");
-                $ic = array("2", "1", "1", "1", "1", "1");
+                $cl = array("active", "green", "green", "green", "green", "green", "green");
+                $ic = array("2", "1", "1", "1", "1", "1", "1");
                 break;
             case "signing"            :
-                $cl = array("green", "active", "green", "green", "green", "green");
-                $ic = array("1", "2", "1", "1", "1", "1");
+                $cl = array("green", "active", "green", "green", "green", "green", "green");
+                $ic = array("1", "2", "1", "1", "1", "1", "1");
                 break;
             case "leave"        :
-                $cl = array("green", "green", "active", "green", "green", "green");
-                $ic = array("1", "1", "2", "1", "1", "1");
+                $cl = array("green", "green", "active", "green", "green", "green", "green");
+                $ic = array("1", "1", "2", "1", "1", "1", "1");
                 break;
             case "users"    :
-                $cl = array("green", "green", "green", "active", "green", "green");
-                $ic = array("1", "1", "1", "2", "1", "1");
+                $cl = array("green", "green", "green", "active", "green", "green", "green");
+                $ic = array("1", "1", "1", "2", "1", "1", "1");
                 break;
             case "settings"            :
-                $cl = array("green", "green", "green", "green", "active", "green");
-                $ic = array("1", "1", "1", "1", "2", "1");
+                $cl = array("green", "green", "green", "green", "active", "green", "green");
+                $ic = array("1", "1", "1", "1", "2", "1", "1");
                 break;
             case "logout"        :
-                $cl = array("green", "green", "green", "green", "green", "active");
-                $ic = array("1", "1", "1", "1", "1", "2");
+                $cl = array("green", "green", "green", "green", "green", "active", "green");
+                $ic = array("1", "1", "1", "1", "1", "2", "1");
+                break;
+            case "report"        :
+                $cl = array("green", "green", "green", "green", "green", "green", "active");
+                $ic = array("1", "1", "1", "1", "1", "1", "2");
                 break;
         }
         ?>
@@ -99,6 +103,11 @@ $userinfo = $getdata->my_sql_query(NULL, "user", "user_key='" . $_SESSION['ukey'
         <a href="?p=leave">
             <div class="button_menu <?php echo @$cl[2]; ?>"><img
                         src="../media/icons/nav/book_<?php echo @$ic[2]; ?>.png" width="20" height="20">การลางาน
+            </div>
+        </a>
+        <a href="?p=report">
+            <div class="button_menu <?php echo @$cl[6]; ?>"><img
+                        src="../media/icons/nav/report_1.png" width="20" height="20">รายงานการขาดลา
             </div>
         </a>
         <a href="?p=users">

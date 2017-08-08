@@ -4,9 +4,15 @@ ini_set('display_errors', 'on');
 function sql_todate($d){
     return (new DateTime($d))->format("d/m/Y");
 }
+function php_toSqlDate($d){
+    return (new DateTime($d))->format("Y-m-d");
+}
 $photofilename = md5(time("now"));
-
+// $startDay = date("Y-m-")."01";
+$getdata->my_sql_check_date_missing($_SESSION['ukey'], date('d'), date('m'), date('Y'));
 if (isset($_POST['save'])) {
+    $hphoto = $_POST['h_user_photo'];
+    //echo '<script>alert($("#haveSnap").val());</script>';
     date_default_timezone_set('Asia/Bangkok');
 
     if (!defined('UPLOADDIR')) define('UPLOADDIR', '../resource/signing/images/');
@@ -22,7 +28,7 @@ if (isset($_POST['save'])) {
 
     }
     $fixed_time = date("08:00:00");
-    $start_time = date("06:00:00");
+    $start_time = date("05:00:00");
     $current_date = date('Y-m-d');
     $current_time = date('H:i:s');
     if($current_time <= $fixed_time && $current_time >= $start_time){
@@ -34,16 +40,19 @@ if (isset($_POST['save'])) {
     if ($File_name != NULL) {
         resizeUserThumb($fn);
         $getdata->my_sql_insert("checkin","time='".$current_time."', date='".$current_date."', user_key='".$_SESSION['ukey']."', status='".$status."', photo='".$fn."'");
-    }else if(addslashes($_POST['h_user_photo']) != NULL){
-        $photo = addslashes($_POST['h_user_photo']) . ".jpg";
+    }else if(addslashes($hphoto) != NULL){
+        $photo = addslashes($hphoto) . ".jpg";
         resizeUserThumb($photo);
         $getdata->my_sql_insert("checkin","time='".$current_time."', date='".$current_date."', user_key='".$_SESSION['ukey']."', status='".$status."', photo='".$photo."'");
     }else{
         //$getdata->my_sql_insert("checkin","time='".$current_time."', date='".$current_date."', user_key='".$_SESSION['ukey']."', status='".$status."'");\
         echo '<script>alert("กรุณาถ่ายรูปก่อน!");</script>';
     }
-
+    
+header("Location: http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+exit;
 }
+
 ?>
 <script type="text/javascript" src="../plugins/webcam/webcam.js"></script>
 <!-- Configure a few settings -->
@@ -96,10 +105,15 @@ if (isset($_POST['save'])) {
             </tr>
             <tr >
                 <td colspan="2" align="center">
-                    <button type="button" name="take_photo" class="button green" onClick="take_snapshot()">
+                    <?php $haveCheckAlready = $getdata->my_sql_show_rows("checkin","user_key='".$_SESSION['ukey']."' AND date='".(date('Y-m-d'))."'");  
+                        echo $haveCheckAlready>0? 'วันนี้คุณได้ทำการลงชื่อเข้างานเรียบร้อยแล้ว<br/>':'';
+                    ?>
+                    <button type="button" name="take_photo" class="button green" onClick="take_snapshot();" 
+                    <?php echo $haveCheckAlready>0? 'disabled':''; ?>>
                         <img src="../media/icons/set/white/camera.png" width="20" height="20">ถ่ายรูป
                     </button>
-                    <input type="submit" name="save" class="button green" value="บันทึก">
+                    <input type="submit" name="save" class="button green" value="บันทึก"
+                    <?php echo $haveCheckAlready>0? 'disabled':''; ?>>
                 </td>
             </tr>
         </table>
@@ -107,6 +121,7 @@ if (isset($_POST['save'])) {
     </form>
 </fieldset>
 <script type="text/javascript">
+
 var xmlHttp;
 function srvTime(){
     try {
@@ -189,8 +204,9 @@ $(document).ready(function(){
   <?php
   $i=0;
   $getdata->my_sql_set_utf8();
+  $this_m = date("Y-m", gmmktime(0, 0, 0, date('m'), date('d'), date('Y')));
   $getcheckin_thisuser = mysql_query("SELECT u.user_key AS ukey, ck.photo AS photo, ck.time AS time, ck.date AS date, ck.status AS status ".
-    "FROM checkin AS ck, user AS u WHERE ck.user_key=u.user_key AND u.user_key='".$_SESSION['ukey']."' ORDER BY ck.id DESC");
+    "FROM checkin AS ck, user AS u WHERE ck.user_key=u.user_key AND u.user_key='".$_SESSION['ukey']."' AND date like '".$this_m."%' ORDER BY date DESC");
   while($show_checkin = mysql_fetch_object($getcheckin_thisuser)){
         $i++;
         // $bg = 'bgcolor="#CCCCCC"';
@@ -198,7 +214,7 @@ $(document).ready(function(){
   ?>
   <tr class="aqua_treatment_text" id="<?php echo @$show_checkin->ukey;?>">
     <td align="center" bgcolor="#9be2ff"><?php echo @$i;?></td>
-    <td align="center" bgcolor="#9be2ff"><img src="../resource/signing/images/<?php echo @$show_checkin->photo;?>" width="50"  alt="" id="photo_border"/></td>
+    <td align="center" bgcolor="#9be2ff"><img src="../resource/signing/images/<?php echo @$show_checkin->photo <> ''? @$show_checkin->photo:'noimg.jpg' ;?>" width="50"  alt="" id="photo_border"/></td>
     <td align="center" bgcolor="#9be2ff"><?php echo @$show_checkin->time;?></td>
     <td align="center" bgcolor="#9be2ff"><?php echo sql_todate(@$show_checkin->date); ?></td>
     <td align="center" bgcolor="#9be2ff"><?php echo @$show_checkin->status;?></td>

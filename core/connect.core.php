@@ -107,5 +107,28 @@ class clear_db{
 	function my_sql_close(){
 		return mysql_close();
 	}
+	function my_sql_check_date_missing($ukey,$d,$m,$y){
+		$today = date("Y-m-d", gmmktime(0, 0, 0, $m, $d, $y));
+		$startDay = date("Y-m-d", gmmktime(0, 0, 0, $m, '1', $y));
+		$queryAllofThisUser = mysql_query("SELECT * FROM checkin WHERE user_key='".$ukey."' AND date<'".$today."' AND date>='".$startDay."' ORDER BY date ") ;
+		
+		$checkedDayArray = array();
+		while($checkin = mysql_fetch_object($queryAllofThisUser)){
+			$checkedDayArray[$checkin->date]= true;
+		}
+
+		$missing = array();
+		$day_itr = 1;
+		while($day_itr < intval($d)){
+			$dateLoop = date("Y-m-d", gmmktime(0, 0, 0, $m, $day_itr, $y));
+			if(!$checkedDayArray[$dateLoop]){
+				// missing date
+				$missing[$dateLoop] = true;
+				mysql_query("INSERT INTO checkin SET user_key='".$ukey."', date='".$dateLoop."', status='ABSENCE'");
+			}
+			$day_itr++;
+		}
+		// echo '<script>alert("'.$ukey.' '.$today.' '.$startDay.'");</script>';
+	}
 }
 ?>
