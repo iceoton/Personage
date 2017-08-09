@@ -10,8 +10,8 @@ define('DB_USERNAME', 'adminscrBQWN');
 // define('DB_USERNAME', 'root');
 
 // MySQL database password
-define('DB_PASSWORD', 'KIDM_aFySaur');
-// define('DB_PASSWORD', 'root');
+//define('DB_PASSWORD', 'KIDM_aFySaur');
+define('DB_PASSWORD', '');
 
 // MySQL database name
 define('DB_NAME', 'personage');
