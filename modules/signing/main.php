@@ -184,6 +184,7 @@ function Datenow_refDb(){
 }
 
 $(document).ready(function(){
+    $('#server').html("ขณะนี้เวลา  " + timenow(srvTime()));
     setInterval(function(){
         // var localTime = new Date();
         //   $('#local').html("Local machine time is: " + localTime + "<br>");
