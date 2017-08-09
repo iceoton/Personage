@@ -6,8 +6,8 @@ define('DB_HOST', '127.12.253.130');
 // define('DB_HOST','localhost');
 
 // MySQL database username
-define('DB_USERNAME', 'adminscrBQWN');
-// define('DB_USERNAME', 'root');
+// define('DB_USERNAME', 'adminscrBQWN');
+define('DB_USERNAME', 'root');
 
 // MySQL database password
 //define('DB_PASSWORD', 'KIDM_aFySaur');
