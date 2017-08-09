@@ -161,7 +161,7 @@ function timenow(){
 
     if(m<10) m= '0'+m;
     if(s<10) s= '0'+s;
-    return now.toLocaleDateString()+ ' ' + h + ':' + m + ':' + s + ' ' + ampm;
+    return now.toLocaleDateString()+ ' ' + h + ':' + m + ' ' + ampm;
 }
 
 function timenow_refDb(){
@@ -188,7 +188,7 @@ $(document).ready(function(){
         // var localTime = new Date();
         //   $('#local').html("Local machine time is: " + localTime + "<br>");
           $('#server').html("ขณะนี้เวลา  " + timenow(srvTime()));
-    }, 100);
+    }, 6000);
 });
 </script>
 
