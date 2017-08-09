@@ -184,11 +184,11 @@ function Datenow_refDb(){
 }
 
 $(document).ready(function(){
-    setInterval(function(){
+    setTimeout(function(){
         // var localTime = new Date();
         //   $('#local').html("Local machine time is: " + localTime + "<br>");
           $('#server').html("ขณะนี้เวลา  " + timenow(srvTime()));
-    }, 1000);
+    }, 100);
 });
 </script>
 
