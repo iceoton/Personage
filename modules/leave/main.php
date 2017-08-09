@@ -406,7 +406,7 @@ echo @$display_alert;
                     </form>
                     <?php } ?>
                 </td>
-                <td align="center" <?php echo @$bg; ?>>
+                <td align="left" <?php echo @$bg; ?>>
                     <?php if($_SESSION['uclass']=='0') { ?>
                     <a href="?p=leave_detail&key=<?php echo @$showLeave->code; ?>">
                         <div class="button_symbol green">
@@ -424,7 +424,7 @@ echo @$display_alert;
                     <?php } ?>
                     <?php if($_SESSION['ukey']==$ukey){ ?>
                     <a onClick="javascript:cancelLeave('<?php echo @$showLeave->code; ?>');">
-                        <div class="button_symbol green">
+                        <div class="button green">
                             ยกเลิกการลา
                         </div>
                     </a>
