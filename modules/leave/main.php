@@ -60,6 +60,23 @@ function sql_todate($d){
         }
         window.location.href=window.location.href;
     }
+    function cancelLeave(mkey){
+        if(confirm("เมื่อคุณยกเลิกการลาแล้ว จะย้อนกลับไปแก้ไขไม่ได้ คุณต้องการจะยกเลิกไช่หรือไม่ ?")){
+            if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            } else {// code for IE6, IE5
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById(mkey).innerHTML = '';
+                }
+            }
+            xmlhttp.open("GET", "../modules/leave/cancel.php?mkey=" + mkey, true);
+            xmlhttp.send();
+        }
+        window.location.href=window.location.href;
+    }
 </script>
 <?php
 // $action=$_GET['action']; 
@@ -134,6 +151,7 @@ echo @$display_alert;
                             <option value="0">รอการอนุมัติ</option>
                             <option value="1">อนุมัติแล้ว</option>
                             <option value="2">ไม่อนุมัติ</option>
+                            <option value="3">ยกเลิกการลา</option>
                         </select>
                     </td>
                 </tr>
@@ -274,6 +292,13 @@ echo @$display_alert;
             $bg = 'bgcolor="#9be2ff"';
             // if( $showLeave->user_key == $_SESSION['ukey'] ) {
                 $count_stat++;
+                $getUser = $getdata->my_sql_select(NULL, "user", "user.user_key='".$showLeave->user_key."'");
+                $uname="";
+                $ukey ="";
+                if($u = mysql_fetch_object($getUser)){
+                    $uname = $u->name ." ". $u->lastname;
+                    $ukey = $u->user_key;
+                }
             ?>
                 <tr class="aqua_treatment_text" id="" >
                  <td <?php echo @$bg; ?>>
@@ -281,12 +306,7 @@ echo @$display_alert;
                  </td>
                  <td <?php echo @$bg; ?>>
                      <?php 
-                        $getUser = $getdata->my_sql_select(NULL, "user", "user.user_key='".$showLeave->user_key."'");
-                        if ($u = mysql_fetch_object($getUser)) {
-                            echo $u->name ." ". $u->lastname;
-                        }else{
-                            echo "";
-                        }
+                        echo $uname;
                      ?>
                  </td>
                  <td <?php echo @$bg; ?>>
@@ -325,6 +345,9 @@ echo @$display_alert;
                      }
                      else if($s == '2'){
                         echo 'ไม่อนุมัติ';
+                     }
+                     else if($s == '3'){
+                        echo 'ยกเลิกการลา';
                      }
                      ?>
                  </td>
@@ -396,6 +419,13 @@ echo @$display_alert;
                         <div class="button_symbol green">
                             <img src="../media/icons/set/white/delete1.png" width="25" height="25" alt=""
                                  title="ลบข้อมูล"/>
+                        </div>
+                    </a>
+                    <?php } ?>
+                    <?php if($_SESSION['ukey']==$ukey){ ?>
+                    <a onClick="javascript:cancelLeave('<?php echo @$showLeave->code; ?>');">
+                        <div class="button_symbol green">
+                            ยกเลิกการลา
                         </div>
                     </a>
                     <?php } ?>
