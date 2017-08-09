@@ -131,27 +131,31 @@ class clear_db{
 		// echo '<script>alert("'.$ukey.' '.$today.' '.$startDay.'");</script>';
 	}
 	function my_sql_check_date_missing_all($d,$m,$y){
-		$today = date("Y-m-d", gmmktime(0, 0, 0, $m, $d, $y));
-		$startDay = date("Y-m-d", gmmktime(0, 0, 0, $m, '1', $y));
-		$queryAllofThisUser = mysql_query("SELECT * FROM checkin WHERE date<'".$today."' AND date>='".$startDay."' ORDER BY date ") ;
-		
-		$checkedDayArray = array();
-		while($checkin = mysql_fetch_object($queryAllofThisUser)){
-			$checkedDayArray[$checkin->date]['x']= true;
-			$checkedDayArray[$checkin->date]['ukey']= $checkin->user_key;
-		}
-
-		$missing = array();
-		$day_itr = 1;
-		while($day_itr < intval($d)){
-			$dateLoop = date("Y-m-d", gmmktime(0, 0, 0, $m, $day_itr, $y));
-			if(!$checkedDayArray[$dateLoop]['x']){
-				// missing date
-				$missing[$dateLoop] = true;
-				mysql_query("INSERT INTO checkin SET user_key='".$checkedDayArray[$dateLoop]['ukey']."', date='".$dateLoop."', status='ABSENCE'");
+		$q = mysql_query("SELECT * FROM user");
+		while($u = mysql_fetch_object($q)){
+			$ukey=$u->user_key;
+			$today = date("Y-m-d", gmmktime(0, 0, 0, $m, $d, $y));
+			$startDay = date("Y-m-d", gmmktime(0, 0, 0, $m, '1', $y));
+			$queryAllofThisUser = mysql_query("SELECT * FROM checkin WHERE user_key='".$ukey."' AND date<'".$today."' AND date>='".$startDay."' ORDER BY date ") ;
+			
+			$checkedDayArray = array();
+			while($checkin = mysql_fetch_object($queryAllofThisUser)){
+				$checkedDayArray[$checkin->date]= true;
 			}
-			$day_itr++;
+
+			$missing = array();
+			$day_itr = 1;
+			while($day_itr < intval($d)){
+				$dateLoop = date("Y-m-d", gmmktime(0, 0, 0, $m, $day_itr, $y));
+				if(!$checkedDayArray[$dateLoop]){
+					// missing date
+					$missing[$dateLoop] = true;
+					mysql_query("INSERT INTO checkin SET user_key='".$ukey."', date='".$dateLoop."', status='ABSENCE'");
+				}
+				$day_itr++;
+			}
 		}
+		// echo '<script>alert("'.$ukey.' '.$today.' '.$startDay.'");</script>';
 	}
 }
 ?>

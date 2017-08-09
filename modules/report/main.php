@@ -1,6 +1,6 @@
 <?php 
 
-$getdata->my_sql_check_date_missing($_SESSION['ukey'], date('d'), date('m'), date('Y'));
+$getdata->my_sql_check_date_missing_all( date('d'), date('m'), date('Y'));
 
 ?>
 <div class="aqua_hbar"><img src="../media/icons/nav/report_2.png" width="32" height="32">รายงานการขาดลา</div>
