@@ -110,8 +110,8 @@ class clear_db{
 	function my_sql_check_date_missing($ukey,$d,$m,$y){
 		$today = date("Y-m-d", gmmktime(0, 0, 0, $m, $d, $y));
 		$startDay = date("Y-m-d", gmmktime(0, 0, 0, $m, '1', $y));
-		$queryAllofThisUser = mysql_query("SELECT * FROM checkin WHERE user_key='".$ukey."' AND date<'".$today."' AND date>='".$startDay."' ORDER BY date ") ;
-		
+		$queryAllofThisUser = mysql_query("SELECT * FROM checkin WHERE user_key='".$ukey."' AND date<'".$today."' AND date>='".$startDay."' AND status<>'LEAVE' ORDER BY date ") ;
+
 		$checkedDayArray = array();
 		while($checkin = mysql_fetch_object($queryAllofThisUser)){
 			$checkedDayArray[$checkin->date]= true;
@@ -136,8 +136,8 @@ class clear_db{
 			$ukey=$u->user_key;
 			$today = date("Y-m-d", gmmktime(0, 0, 0, $m, $d, $y));
 			$startDay = date("Y-m-d", gmmktime(0, 0, 0, $m, '1', $y));
-			$queryAllofThisUser = mysql_query("SELECT * FROM checkin WHERE user_key='".$ukey."' AND date<'".$today."' AND date>='".$startDay."' ORDER BY date ") ;
-			
+			$queryAllofThisUser = mysql_query("SELECT * FROM checkin WHERE user_key='".$ukey."' AND date<'".$today."' AND date>='".$startDay."' AND status<>'LEAVE' ORDER BY date ") ;
+
 			$checkedDayArray = array();
 			while($checkin = mysql_fetch_object($queryAllofThisUser)){
 				$checkedDayArray[$checkin->date]= true;

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $getdata->my_sql_check_date_missing_all( date('d'), date('m'), date('Y'));
 
@@ -11,20 +11,29 @@ $getdata->my_sql_check_date_missing_all( date('d'), date('m'), date('Y'));
   <tr class="aqua_treatment_text_header" >
     <td width="6%">ลำดับ</td>
     <td width="9%">ชื่อ</td>
-    <td width="15%">มางาน</td>
+    <td width="15%">ลางาน</td>
     <td width="24%">มาสาย</td>
     <td width="17%">ขาดงาน</td>
   </tr>
-  <?php 
-  
+  <?php
+
   $qstr;
   $this_m = date("Y-m", gmmktime(0, 0, 0, date('m'), date('d'), date('Y')));
   if($_SESSION['uclass']==1){
   	// gerneral
-  	$qstr = "SELECT SUM(normal) AS normal, SUM(late) as late, SUM(absence) as absence, ukey, uname, ulast FROM ((SELECT 0 AS normal, COUNT(status) AS late, 0 AS absence , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='LATE' AND date like '".$this_m."-%' AND user.user_key='".$_SESSION['ukey']."' GROUP BY user.user_key) union (SELECT COUNT(status) AS normal ,0 AS late,0 AS absence  , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='NORMAL' AND date like '".$this_m."-%' AND user.user_key='".$_SESSION['ukey']."' GROUP BY user.user_key) union (SELECT 0 AS normal,0 AS late,COUNT(status) AS absence   , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='ABSENCE' AND date like '".$this_m."-%' AND user.user_key='".$_SESSION['ukey']."' GROUP BY user.user_key)) AS sums GROUP BY ukey, uname, ulast";
+  	$qstr = "SELECT SUM(leaved) AS leaved, SUM(late) as late, SUM(absence) as absence, ukey, uname, ulast FROM ".
+              "((SELECT 0 AS leaved, COUNT(status) AS late, 0 AS absence , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast ".
+                "FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='LATE' AND date like '".$this_m."-%' AND user.user_key='".$_SESSION['ukey']."' ".
+                "GROUP BY user.user_key) union ".
+              "(SELECT COUNT(status) AS leaved ,0 AS late,0 AS absence  , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast ".
+                "FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='LEAVE' AND date like '".$this_m."-%' AND user.user_key='".$_SESSION['ukey']."' ".
+                "GROUP BY user.user_key) union ".
+              "(SELECT 0 AS leaved,0 AS late,COUNT(status) AS absence   , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast ".
+                "FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='ABSENCE' AND date like '".$this_m."-%' AND user.user_key='".$_SESSION['ukey']."' ".
+                "GROUP BY user.user_key)) AS sums GROUP BY ukey, uname, ulast";
   }else{
   	// super
-  	$qstr = "SELECT SUM(normal) AS normal, SUM(late) as late, SUM(absence) as absence, ukey , uname, ulast FROM ((SELECT 0 AS normal, COUNT(status) AS late, 0 AS absence , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='LATE' AND date like '".$this_m."-%' GROUP BY user.user_key) union (SELECT COUNT(status) AS normal ,0 AS late,0 AS absence  , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='NORMAL' AND date like '".$this_m."-%' GROUP BY user.user_key) union (SELECT 0 AS normal,0 AS late,COUNT(status) AS absence   , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='ABSENCE' AND date like '".$this_m."-%' GROUP BY user.user_key)) AS sums GROUP BY ukey, uname, ulast";
+  	$qstr = "SELECT SUM(leaved) AS leaved, SUM(late) as late, SUM(absence) as absence, ukey , uname, ulast FROM ((SELECT 0 AS leaved, COUNT(status) AS late, 0 AS absence , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='LATE' AND date like '".$this_m."-%' GROUP BY user.user_key) union (SELECT COUNT(status) AS leaved ,0 AS late,0 AS absence  , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='LEAVE' AND date like '".$this_m."-%' GROUP BY user.user_key) union (SELECT 0 AS leaved,0 AS late,COUNT(status) AS absence   , user.user_key AS ukey, user.name AS uname, user.lastname AS ulast FROM user LEFT JOIN checkin ON user.user_key = checkin.user_key WHERE checkin.status='ABSENCE' AND date like '".$this_m."-%' GROUP BY user.user_key)) AS sums GROUP BY ukey, uname, ulast";
   }
   $getdata->my_sql_set_utf8();
   $q = mysql_query($qstr);
@@ -34,7 +43,7 @@ $getdata->my_sql_check_date_missing_all( date('d'), date('m'), date('Y'));
   <tr class="aqua_treatment_text" id="<?php echo $item->ukey;?>">
     <td align="center" bgcolor="#9be2ff"><?php echo $i; ?></td>
     <td align="center" bgcolor="#9be2ff"><?php echo ($item->uname)." ".($item->ulast); ?></td>
-    <td align="center" bgcolor="#9be2ff"><?php echo $item->normal;?></td>
+    <td align="center" bgcolor="#9be2ff"><?php echo $item->leaved;?></td>
     <td align="center" bgcolor="#9be2ff"><?php echo $item->late; ?></td>
     <td align="center" bgcolor="#9be2ff"><?php echo $item->absence;?></td>
   </tr>
@@ -77,6 +86,6 @@ function exportData(){
 }
 $(document).ready(function(){
 	$('#export-buttons-table').css("display","unset");
-});	
+});
 
 </script>
