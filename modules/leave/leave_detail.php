@@ -6,13 +6,37 @@ function sql_todate($d){
 }
 
 if (isset($_POST['save_edit'])) {
-    // $user_key = addslashes($_POST['user_key']);
- 
+
+        // status = 1,2 only
+        $s = ($_POST['s']);
+        $e = ($_POST['e']);
         $getdata->my_sql_update("leave_paper","status='" . ($_POST['status']) . "',approve_by='" . $_SESSION['ukey'] . "'", "code='".$_POST['code']."'");
-        
-        //echo '<script>window.location="?p=users";</script>';
+        if($_POST['status']="1"){
+            $explode_c = explode("-",$s);
+            $i = intval($explode_c[0]);
+            $j = intval($explode_c[1]);
+            $k = intval($explode_c[2]);
+            // $count = $i."-".$explode_c[1]."-".$explode_c[2];
+            $explode_e = explode("-",$e);
+            $ie = intval($explode_e[0]);
+            $je = intval($explode_e[1]);
+            $ke = intval($explode_e[2]);
+            // $end = $explode_e[0]."-".$explode_e[1]."-".$explode_e[2];
+            while($k<=$ke){
+                $d = $i."-".$j."-".$k;
+                $getdata->my_sql_insert("checkin","user_key='".$_POST['ukey']."', status='LEAVE', date='".$d."'");
+                $k++;
+                // if($i==30){
+
+                // }
+            }
+        }
+        // else if($_POST['status']="2"){
+
+        // }
+
         echo '<div id="success_alert"><img src="../media/icons/set/white/info.png" width="16" height="16"> บันทึกข้อมูลเรียบร้อยแล้ว</div>';
-    
+
 }
 ?>
 <?php
@@ -35,7 +59,7 @@ $getLeaveDetail = $getdata->my_sql_query(NULL, "leave_paper", "code='" . addslas
                     <td align="right">ประเภทการลา</td>
                     <td>
                         <select disabled=""><option>
-                        <?php 
+                        <?php
                         if($getLeaveDetail->type=='0'){
                             echo 'ลาป่วย';
                         }
@@ -82,20 +106,15 @@ $getLeaveDetail = $getdata->my_sql_query(NULL, "leave_paper", "code='" . addslas
                     <td align="right">สถานะ</td>
                     <td>
 
-                        <select name="status"> 
-                            <option value="0" <?php 
-                                if($getLeaveDetail->status == '0'){
-                                    echo 'selected';
-                                }
-                                ?> >รอการอนุมัติ</option>
+                        <select name="status">
                             <option value="1"
-                                <?php 
+                                <?php
                                 if($getLeaveDetail->status == '1'){
                                     echo 'selected';
                                 }
                                 ?> >อนุมัติแล้ว</option>
                             <option value="2"
-                            <?php 
+                            <?php
                                 if($getLeaveDetail->status == '2'){
                                     echo 'selected';
                                 }
@@ -106,13 +125,16 @@ $getLeaveDetail = $getdata->my_sql_query(NULL, "leave_paper", "code='" . addslas
                 <tr>
                     <td align="right">ผู้อนุมัติ</td>
                     <td>
-                        <?php 
+                        <?php
                         $getApprover = $getdata->my_sql_query(NULL, "user", "user_key='" . addslashes($getLeaveDetail->approve_by) . "'");
                         ?>
                         <input type="text" name="approve_by" class="aqua_textfield" value="<?php echo ($getApprover->name).' '.($getApprover->lastname); ?>" disabled>
                     </td>
                 </tr>
                 <tr>
+                    <input type="hidden" name="s" value="<?php echo $getLeaveDetail->start_date; ?>" />
+                    <input type="hidden" name="e" value="<?php echo $getLeaveDetail->end_date; ?>" />
+                    <input type="hidden" name="ukey" value="<?php echo $getLeaveDetail->user_key; ?>"/>
                     <td colspan="4" align="center"><input type="submit" name="save_edit" class="button green" value="บันทึกการแก้ไข">
                     </td>
                 </tr>

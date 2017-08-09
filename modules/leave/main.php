@@ -60,7 +60,7 @@ function sql_todate($d){
         }
         window.location.href=window.location.href;
     }
-    function cancelLeave(mkey){
+    function cancelLeave(mkey, old_s, ukey,s,e){
         if(confirm("เมื่อคุณยกเลิกการลาแล้ว จะย้อนกลับไปแก้ไขไม่ได้ คุณต้องการจะยกเลิกไช่หรือไม่ ?")){
             if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
                 xmlhttp = new XMLHttpRequest();
@@ -72,14 +72,14 @@ function sql_todate($d){
                     document.getElementById(mkey).innerHTML = '';
                 }
             }
-            xmlhttp.open("GET", "../modules/leave/cancel.php?mkey=" + mkey, true);
+            xmlhttp.open("GET", "../modules/leave/cancel.php?mkey=" + mkey+"&before="+old_s+"&u="+ukey+"&s="+s+"&e="+e, true);
             xmlhttp.send();
         }
         window.location.href=window.location.href;
     }
 </script>
 <?php
-// $action=$_GET['action']; 
+// $action=$_GET['action'];
 // $photofilename = md5(time("now"));
 if (isset($_POST['save'])) {
     // $user_key = md5(addslashes($_POST['name']) . addslashes($_POST['lastname']) . time("now"));
@@ -94,20 +94,36 @@ if (isset($_POST['save'])) {
     //         echo '<script>alert("Please select JPG image only !")</script>';
     //     }
     // }
-    $type = addslashes($_REQUEST['type']);
-    $note = addslashes($_REQUEST['note']);
-    $start = (new DateTime($_REQUEST['start_date']))->format('Y-m-d');
-    $end = (new DateTime($_REQUEST['end_date']))->format('Y-m-d');
-    $amount = addslashes($_REQUEST['amount_day']);
-    $getdata->my_sql_insert("leave_paper"
-        ,"code='".addslashes(md5(time("now")))."'"
-        .",user_key='".addslashes($_SESSION['ukey'])."'"
-        .",type='".$type."'"
-        .",note='".$note."'"
-        .",start_date='".$start."'"
-        .",end_date='".$end."'"
-        .",amount_day=".$amount.""
-        .",status='0'");
+
+    $start_d = explode("-",$_REQUEST['start_date']);
+    $end_d = explode("-",$_REQUEST['end_date']);
+    $now = explode("-",date("d-m-Y"));
+
+    $s = gmmktime(0, 0, 0,$start_d[1],$start_d[0],$start_d[2]);
+    $e = gmmktime(0, 0, 0,$end_d[1],$end_d[0],$end_d[2]);
+    $n = gmmktime(0, 0, 0,$now[1],$now[0],$now[2]);
+    // echo '<script>alert("'.$n.' '.$s.' '.$e.'");</script>';
+    if($s > $e){
+        echo '<script>alert("วันเริ่มลาต้องไม่มากกว่าวันสุดท้ายที่ลา");</script>';
+    }else if($n > $s || $n > $e){
+        echo '<script>alert("ไม่สามารถลาย้อนหลังได้");</script>';
+    }else {
+        $type = addslashes($_REQUEST['type']);
+        $note = addslashes($_REQUEST['note']);
+        $start = date("Y-m-d", $s);
+        $end = date("Y-m-d", $e);
+        $amount = addslashes($_REQUEST['amount_day']);
+        $getdata->my_sql_insert("leave_paper"
+            ,"code='".addslashes(md5(time("now")))."'"
+            .",user_key='".addslashes($_SESSION['ukey'])."'"
+            .",type='".$type."'"
+            .",note='".$note."'"
+            .",start_date='".$start."'"
+            .",end_date='".$end."'"
+            .",amount_day=".$amount.""
+            .",status='0'");
+    }
+    echo '<script>window.location.href=window.location.href;</script>';
 }
 ?>
 <script type="text/javascript" src="../plugins/webcam/webcam.js"></script>
@@ -212,7 +228,7 @@ echo @$display_alert;
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" align="center"><input type="submit" name="save" class="button green" value="บันทึก">
+                    <td colspan="4" align="center"><input type="submit" name="save" id="save_btn" class="button green" value="บันทึก">
                     </td>
                 </tr>
             </table>
@@ -220,7 +236,7 @@ echo @$display_alert;
         </form>
     </fieldset>
 </div>
-<?php 
+<?php
 
 ?>
 <div class="field_bar">
@@ -234,7 +250,7 @@ echo @$display_alert;
             <td width="18%">จัดการ</td> -->
             <td>ลำดับ</td>
             <td>ผู้ลา</td>
-            <td>ประเภท</td>           
+            <td>ประเภท</td>
             <td>เริ่มลาวันที่</td>
             <td>ถึงวันที่</td>
             <td>จำนวนวัน</td>
@@ -243,9 +259,10 @@ echo @$display_alert;
             <td>วันที่เขียนใบลา</td>
             <td>หมายเหตุ</td>
             <td>ดาวน์โหลด PDF</td>
-            <?php if($_SESSION['uclass']=='0' || $_SESSION['uclass']=='2') {
+            <td>จัดการ</td>
+            <!-- <?php if($_SESSION['uclass']=='0' || $_SESSION['uclass']=='2') {
                     echo "<td>จัดการ</td>";
-                }?>
+                }?> -->
         </tr>
         <?php
         $i = 0;
@@ -305,13 +322,13 @@ echo @$display_alert;
                      <?php echo $count_stat; ?>
                  </td>
                  <td <?php echo @$bg; ?>>
-                     <?php 
+                     <?php
                         echo $uname;
                      ?>
                  </td>
                  <td <?php echo @$bg; ?>>
-                     <?php 
-                     $t = $showLeave->type; 
+                     <?php
+                     $t = $showLeave->type;
                     if($t == '0'){
                         echo 'ลาป่วย';
                     }
@@ -321,7 +338,7 @@ echo @$display_alert;
                     else if($t =='2'){
                         echo 'ลาคลอด';
                     }
-                     
+
 
                     ?>
                  </td>
@@ -335,7 +352,7 @@ echo @$display_alert;
                      <?php echo $showLeave->amount_day; ?>
                  </td>
                  <td <?php echo @$bg; ?>>
-                     <?php $s = $showLeave->status; 
+                     <?php $s = $showLeave->status;
 
                      if($s =='0'){
                         echo 'รอการอนุมัติ';
@@ -352,7 +369,7 @@ echo @$display_alert;
                      ?>
                  </td>
                  <td <?php echo @$bg; ?>>
-                     <?php 
+                     <?php
                         $getApprove = $getdata->my_sql_select(NULL, "user", "user.user_key='".$showLeave->approve_by."'");
                         if ($approver = mysql_fetch_object($getApprove)) {
                             echo $approver->name ." ". $approver->lastname;
@@ -360,7 +377,7 @@ echo @$display_alert;
                             echo "ยังไม่มี";
                         }
 
-                     // echo $showLeave->approve_by; 
+                     // echo $showLeave->approve_by;
                         ?>
                  </td>
                  <td <?php echo @$bg; ?>>
@@ -370,7 +387,7 @@ echo @$display_alert;
                      <?php echo $showLeave->note; ?>
                  </td>
                  <td <?php echo @$bg; ?>>
-                    <?php 
+                    <?php
                     if($showLeave->type=='0'){
                         $type = 'ลาป่วย';
                     }else if($showLeave->type=='1'){
@@ -386,7 +403,7 @@ echo @$display_alert;
                     $date = sql_todate($showLeave->create_date);
 
                     $getUser =  $getdata->my_sql_select(NULL, "user", "(user_key='".($showLeave->user_key)."')");
-                    if ($u = mysql_fetch_object($getUser)) { 
+                    if ($u = mysql_fetch_object($getUser)) {
                         $fullname = ($u->name) ." ". ($u->lastname);
                         $position = ($u->position);
                         $department = ($u->department);
@@ -397,21 +414,21 @@ echo @$display_alert;
                         <input type="text" name="name" value="<?php echo $fullname;?>" hidden />
                         <input type="text" name="note" value="<?php echo $showLeave->note;?>" hidden />
                         <input type="text" name="create_date" value="<?php echo $date;?>" hidden />
-                        <input type="text" name="start_date" value="<?php echo $start;?>" hidden />
-                        <input type="text" name="end_date" value="<?php echo $end;?>" hidden />
+                        <input type="text" name="start_date"  id="t_start_date" value="<?php echo $start;?>" hidden />
+                        <input type="text" name="end_date" id="t_end_date" value="<?php echo $end;?>" hidden />
                         <input type="text" name="amount_day" value="<?php echo $showLeave->amount_day;?>" hidden />
                         <input type="text" name="position" value="<?php echo $position;?>" hidden />
                         <input type="text" name="department" value="<?php echo $department;?>" hidden />
-                        <input type="submit" name="pdf" value="download" />
+                        <input type="submit" name="pdf" value="download" class="button green"/>
                     </form>
                     <?php } ?>
                 </td>
-                <td align="left" <?php echo @$bg; ?>>
-                    <?php if($_SESSION['uclass']=='0') { ?>
+                <td align="left" <?php echo @$bg; ?> style="height: 40px;">
+                    <?php if($_SESSION['uclass']=='0' && ($s==0 )) { ?>
                     <a href="?p=leave_detail&key=<?php echo @$showLeave->code; ?>">
                         <div class="button_symbol green">
                             <img src="../media/icons/set/white/detail.png" width="25" height="25" alt=""
-                                 title="รายละเอียด"/>
+                                 title="แก้ไข"/>
                         </div>
                     </a>
                     <?php } else if($_SESSION['uclass']=='2'){ ?>
@@ -422,8 +439,8 @@ echo @$display_alert;
                         </div>
                     </a>
                     <?php } ?>
-                    <?php if($_SESSION['ukey']==$ukey){ ?>
-                    <a onClick="javascript:cancelLeave('<?php echo @$showLeave->code; ?>');">
+                    <?php if($_SESSION['ukey']==$ukey && ($s!=3)){ ?>
+                    <a onClick="javascript:cancelLeave('<?php echo @$showLeave->code; ?>', <?php echo @$s; ?>, '<?php echo @$showLeave->user_key; ?>', '<?php echo @$showLeave->start_date; ?>', '<?php echo @$showLeave->end_date; ?>');">
                         <div class="button green">
                             ยกเลิกการลา
                         </div>
@@ -432,7 +449,7 @@ echo @$display_alert;
                 </td>
              </tr>
             <?php
-            
+
         }
         ?>
     </table>
