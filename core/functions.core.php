@@ -85,6 +85,21 @@ function resizeUserThumb($imgname){
 		ImageJPEG($images_fin,$new_images);
 		ImageDestroy($images_fin);
 }
+function resizeSigningThumb($imgname){
+    $images = "../resource/signing/images/".$imgname;
+    $new_images = "../resource/signing/thumbs/".$imgname;
+
+    $width=100; //*** Fix Width & Heigh (Auto caculate) ***//
+    $size=GetimageSize($images);
+    $height=round($width*$size[1]/$size[0]);
+    $images_orig = ImageCreateFromJPEG($images);
+    $photoX = ImagesX($images_orig);
+    $photoY = ImagesY($images_orig);
+    $images_fin = ImageCreateTrueColor($width, $height);
+    ImageCopyResampled($images_fin, $images_orig, 0, 0, 0, 0, $width+1, $height+1, $photoX, $photoY);
+    ImageJPEG($images_fin,$new_images);
+    ImageDestroy($images_fin);
+}
 function dateConvertor($date){
 	$epd = explode("-",$date);
 		$Y=$epd[0]+543;

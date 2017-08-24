@@ -4,7 +4,7 @@ error_reporting(0); ?>
 <html>
 <head>
     <title>Personage - ระบบบริหารจัดการบุคลากรออนไลน์</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" http-equiv="Content-Type">
     <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../css/style.css"/>
@@ -55,34 +55,38 @@ $userinfo = $getdata->my_sql_query(NULL, "user", "user_key='" . $_SESSION['ukey'
     </div>
     <div id="leftcolumn">
         <?php
-        $cl = array("active", "green", "green", "green", "green", "green");
-        $ic = array("2", "1", "1", "1", "1", "1");
+        $cl = array("active", "green", "green", "green", "green", "green", "green");
+        $ic = array("2", "1", "1", "1", "1", "1", "1");
         $menu = $getdata->my_sql_query("menu", "list", "cases='" . @$_GET['p'] . "'");
         // 1 คือไม่ active 2 คือ active
         switch ($menu->menu) {
             case "main"            :
-                $cl = array("active", "green", "green", "green", "green", "green");
-                $ic = array("2", "1", "1", "1", "1", "1");
+                $cl = array("active", "green", "green", "green", "green", "green", "green");
+                $ic = array("2", "1", "1", "1", "1", "1", "1");
                 break;
-            case "signing"        :
-                $cl = array("green", "active", "green", "green", "green", "green");
-                $ic = array("1", "2", "1", "1", "1", "1");
+            case "signing"            :
+                $cl = array("green", "active", "green", "green", "green", "green", "green");
+                $ic = array("1", "2", "1", "1", "1", "1", "1");
+                break;
+            case "leave"        :
+                $cl = array("green", "green", "active", "green", "green", "green", "green");
+                $ic = array("1", "1", "2", "1", "1", "1", "1");
                 break;
             case "users"    :
-                $cl = array("green", "green", "active", "green", "green", "green");
-                $ic = array("1", "1", "2", "1", "1", "1");
-                break;
-            case "history"            :
-                $cl = array("green", "green", "green", "active", "green", "green");
-                $ic = array("1", "1", "1", "2", "1", "1");
+                $cl = array("green", "green", "green", "active", "green", "green", "green");
+                $ic = array("1", "1", "1", "2", "1", "1", "1");
                 break;
             case "settings"            :
-                $cl = array("green", "green", "green", "green", "active", "green");
-                $ic = array("1", "1", "1", "1", "2", "1");
+                $cl = array("green", "green", "green", "green", "active", "green", "green");
+                $ic = array("1", "1", "1", "1", "2", "1", "1");
                 break;
             case "logout"        :
-                $cl = array("green", "green", "green", "green", "green", "active");
-                $ic = array("1", "1", "1", "1", "1", "2");
+                $cl = array("green", "green", "green", "green", "green", "active", "green");
+                $ic = array("1", "1", "1", "1", "1", "2", "1");
+                break;
+            case "report"        :
+                $cl = array("green", "green", "green", "green", "green", "green", "active");
+                $ic = array("1", "1", "1", "1", "1", "1", "2");
                 break;
         }
         ?>
@@ -93,17 +97,22 @@ $userinfo = $getdata->my_sql_query(NULL, "user", "user_key='" . $_SESSION['ukey'
         </a>
         <a href="?p=signing">
             <div class="button_menu <?php echo @$cl[1]; ?>"><img
-                    src="../media/icons/nav/payaqua_<?php echo @$ic[1]; ?>.png" width="20" height="20">ลงชื่อ/ลา
+                    src="../media/icons/nav/payaqua_<?php echo @$ic[1]; ?>.png" width="20" height="20">การลงชื่อเข้างาน
+            </div>
+        </a>
+        <a href="?p=leave">
+            <div class="button_menu <?php echo @$cl[2]; ?>"><img
+                        src="../media/icons/nav/book_<?php echo @$ic[2]; ?>.png" width="20" height="20">การลางาน
+            </div>
+        </a>
+        <a href="?p=report">
+            <div class="button_menu <?php echo @$cl[6]; ?>"><img
+                        src="../media/icons/nav/report_1.png" width="20" height="20">รายงานการขาดลา
             </div>
         </a>
         <a href="?p=users">
-            <div class="button_menu <?php echo @$cl[2]; ?>"><img
-                    src="../media/icons/nav/member_<?php echo @$ic[2]; ?>.png" width="20" height="20">รายชื่อผู้ใช้งาน
-            </div>
-        </a>
-        <a href="?p=history">
             <div class="button_menu <?php echo @$cl[3]; ?>"><img
-                    src="../media/icons/nav/book_<?php echo @$ic[3]; ?>.png" width="20" height="20">ประวัติการขาดลา
+                    src="../media/icons/nav/member_<?php echo @$ic[3]; ?>.png" width="20" height="20">รายชื่อผู้ใช้งาน
             </div>
         </a>
         <a href="?p=settings">
