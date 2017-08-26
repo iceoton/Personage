@@ -40,6 +40,32 @@ function sql_todate($d){
     $( "#search_between_date").datepicker({
         dateFormat:"dd-mm-yy"
     });
+
+    $('#label_file_doctor_approve, #input_file_doctor_approve').hide();
+
+    // auto calculate amount day
+    $('#start_date, #end_date').on("change", function(){
+        if($('#start_date').val().length > 0 && $('#end_date').val().length > 0){
+            var s = ($('#start_date').val()).split("-");
+            var e = ($('#end_date').val()).split("-");
+            console.log(s + ' ' + e);
+            var date1 = new Date(parseInt(s[2]),parseInt(s[1]),parseInt(s[0]));
+            var date2 = new Date(parseInt(e[2]),parseInt(e[1]),parseInt(e[0]));
+            if(date2.getTime() - date1.getTime() >= 0){
+                var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+                var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                console.log(diffDays);
+                $('#amount_day_placeholder').val(diffDays+1);
+                if(diffDays+1>=3){
+                    $('#label_file_doctor_approve, #input_file_doctor_approve').show();
+                }else {
+                    $('#label_file_doctor_approve, #input_file_doctor_approve').hide();
+                }
+            }else {
+                $('#start_date, #end_date, #amount_day_placeholder').val("");
+            }
+        }
+    });
   } );
   </script>
 <script language="javascript">
@@ -79,60 +105,133 @@ function sql_todate($d){
     }
 </script>
 <?php
-// $action=$_GET['action'];
-// $photofilename = md5(time("now"));
-if (isset($_POST['save'])) {
-    // $user_key = md5(addslashes($_POST['name']) . addslashes($_POST['lastname']) . time("now"));
-    // if (!defined('UPLOADDIR')) define('UPLOADDIR', '../resource/users/images/');
-    // if (is_uploaded_file($_FILES["photo"]["tmp_name"])) {
-    //     $File_name = $_FILES["photo"]["name"];
-    //     $File_tmpname = $_FILES["photo"]["tmp_name"];
-    //     $fn = md5(date("Ymd") . time("now")) . ".jpg";
-    //     if ($_FILES["photo"]["type"] == "image/jpeg") {
-    //         if (move_uploaded_file($File_tmpname, (UPLOADDIR . "/" . $fn))) ;
-    //     } else {
-    //         echo '<script>alert("Please select JPG image only !")</script>';
-    //     }
-    // }
+function upload_file_pdf($fileUploaded){
+    $target_dir = "../resource/leave/";
+    $target_file = $target_dir . basename($fileUploaded["name"]);
+    $uploadOk = 1;
+    $fileType = pathinfo($target_file,PATHINFO_EXTENSION);
+    // Check if file already exists
+    if (file_exists($target_file)) {
+        echo '<script>alert("มีการแนบไฟล์นี้ในระบบแล้ว กรุณาเปลี่ยนชื่อไฟล์ หรือเลือกไฟล์อื่น")</script>';
+        $uploadOk = 0;
+    }
+    // Check file size
+    if ($fileUploaded["size"] > 5000000) {
+        echo '<script>alert("ขนาดไฟล์ใหญ่เกินไป")</script>';
+        $uploadOk = 0;
+    }
+    // Allow certain file formats
+    if($fileType != "pdf" ) {
+        echo '<script>alert("ไฟล์ต้องเป็นรูปแบบ pdf เท่านั้น")</script>';
+        $uploadOk = 0;
+    }
+    // Check if $uploadOk is set to 0 by an error
+    if ($uploadOk == 0) {
+        echo '<script>alert("ระบบผิดพลาด ไม่สามารถอัพโหลดไฟล์")</script>';
+    // if everything is ok, try to upload file
+    } else {
+        if (move_uploaded_file($fileUploaded["tmp_name"], $target_file)) {
+            echo '<script>alert("ไฟล์ "'.basename( $fileUploaded["name"]).'" ถูกอัพโหลดแล้ว")</script>';
+            $uploadOk=1;
+        } else {
+            echo '<script>alert("ไม่สามารถอัพโหลดไฟล์")</script>';
+            $uploadOk=0;
+        }
+    }
+    if($uploadOk==1){
+        return $fileUploaded["name"];
+    }else {
+        return '';
+    }
+}
 
-    $start_d = explode("-",$_REQUEST['start_date']);
-    $end_d = explode("-",$_REQUEST['end_date']);
+if (isset($_POST['save'])) {
+
+
+    $start_d = explode("-",$_POST['start_date']);
+    $end_d = explode("-",$_POST['end_date']);
     $now = explode("-",date("d-m-Y"));
 
     $s = gmmktime(0, 0, 0,$start_d[1],$start_d[0],$start_d[2]);
     $e = gmmktime(0, 0, 0,$end_d[1],$end_d[0],$end_d[2]);
     $n = gmmktime(0, 0, 0,$now[1],$now[0],$now[2]);
-    // echo '<script>alert("'.$n.' '.$s.' '.$e.'");</script>';
+
     if($s > $e){
         echo '<script>alert("วันเริ่มลาต้องไม่มากกว่าวันสุดท้ายที่ลา");</script>';
     }else if($n > $s || $n > $e){
         echo '<script>alert("ไม่สามารถลาย้อนหลังได้");</script>';
     }else {
-        $type = addslashes($_REQUEST['type']);
-        $note = addslashes($_REQUEST['note']);
+        $type = addslashes($_POST['type']);
+        $note = addslashes($_POST['note']);
         $start = date("Y-m-d", $s);
         $end = date("Y-m-d", $e);
-        $amount = addslashes($_REQUEST['amount_day']);
-        $getdata->my_sql_insert("leave_paper"
-            ,"code='".addslashes(md5(time("now")))."'"
-            .",user_key='".addslashes($_SESSION['ukey'])."'"
-            .",type='".$type."'"
-            .",note='".$note."'"
-            .",start_date='".$start."'"
-            .",end_date='".$end."'"
-            .",amount_day=".$amount.""
-            .",status='0'");
+        $amount = addslashes($_POST['amount_day']);
+        // $getdata->my_sql_insert("leave_paper"
+        //     ,"code='".addslashes(md5(time("now")))."'"
+        //     .",user_key='".addslashes($_SESSION['ukey'])."'"
+        //     .",type='".$type."'"
+        //     .",note='".$note."'"
+        //     .",start_date='".$start."'"
+        //     .",end_date='".$end."'"
+        //     .",amount_day=".$amount.""
+        //     .",status='0'");
+
+
+
+        // upload doctor approve file
+        if(strlen($_FILES['file_doctor_approve']['name'])<=0 && intval($amount) >= 3 ){
+            echo '<script>alert("เพิ่มการลาผิดพลาด เนื่องจากไม่พบไฟล์ที่อัพโหลด");</script>';
+        }
+        else if($_FILES['file_doctor_approve']['name'] && intval($amount) >= 3 ) {
+            $upres = upload_file_pdf($_FILES['file_doctor_approve']);
+            if(strlen($upres) > 0){
+                $strq = "INSERT INTO `leave_paper` (`code`, `user_key`, `type`, `note`, `start_date`, `end_date`, `amount_day`, `status`, `create_date`, `file_doctor_approve`) VALUES (".
+                "'".(md5(time("now")))."'"
+                .",'".($_SESSION['ukey'])."'"
+                .",'".$type."'"
+                .",'".$note."'"
+                .",'".$start."'"
+                .",'".$end."'"
+                .",'".$amount."'"
+                .",'0'"
+                .",'".date("Y-m-d H:i:s")."'"
+                .",'".$upres."')";
+                $res = mysql_query($strq);
+                if($res){
+                        echo '<script>alert("เพิ่มการลาสำเร็จ");</script>';
+                }else {
+                    echo '<script>alert("เพิ่มการลาผิดพลาด");</script>';
+                }
+            }else{
+                echo '<script>alert("เพิ่มการลาผิดพลาด เนื่องจากอัพโหลดไฟล์ไม่สำเร็จ");</script>';
+            }
+        }else{
+            $strq = "INSERT INTO `leave_paper` (`code`, `user_key`, `type`, `note`, `start_date`, `end_date`, `amount_day`, `status`, `create_date`) VALUES (".
+            "'".(md5(time("now")))."'"
+            .",'".($_SESSION['ukey'])."'"
+            .",'".$type."'"
+            .",'".$note."'"
+            .",'".$start."'"
+            .",'".$end."'"
+            .",'".$amount."'"
+            .",'0'"
+            .",'".date("Y-m-d H:i:s")."')";
+            $res = mysql_query($strq);
+            if($res){
+                    echo '<script>alert("เพิ่มการลาสำเร็จ");</script>';
+            }else {
+                echo '<script>alert("เพิ่มการลาผิดพลาด");</script>';
+            }
+        }
+
+
+
     }
+    // echo $strq;
     echo '<script>window.location.href=window.location.href;</script>';
 }
 ?>
-<script type="text/javascript" src="../plugins/webcam/webcam.js"></script>
-<!-- Configure a few settings -->
-<script language="JavaScript">
-    webcam.set_api_url('../plugins/webcam/uploadphoto_user.php?file_name=<?php echo $photofilename;?>');
-    webcam.set_quality(100); // JPEG quality (1 - 100)
-    webcam.set_shutter_sound(true); // play shutter click sound
-</script>
+
 
 <div class="aqua_hbar"><img src="../media/icons/icons/users.png" width="32" height="32">การลา</div>
 <?php
@@ -206,7 +305,7 @@ echo @$display_alert;
                 <tr>
                     <td align="right">จำนวนวัน</td>
                     <td>
-                        <input type="number" name="amount_day" class="aqua_textfield">
+                        <input type="text" name="amount_day" class="aqua_textfield" readonly="" id="amount_day_placeholder">
                     </td>
                 </tr>
                 <tr>
@@ -225,6 +324,16 @@ echo @$display_alert;
                     <td align="right">หมายเหตุ</td>
                     <td colspan="4">
                         <textarea name="note" class="aqua_textfield"></textarea>
+                    </td>
+                </tr>
+                <tr id="label_file_doctor_approve">
+                    <td></td>
+                    <td align="left" colspan="2">แนบใบรับรองแพทย์ (กรณีลาป่วย 3 วันขึ้นไป)</td>
+                </tr>
+                <tr id="input_file_doctor_approve">
+                    <td></td>
+                    <td colspan="4">
+                        <input type="file" name="file_doctor_approve" class="aqua_textfield"  />
                     </td>
                 </tr>
                 <tr>
@@ -258,6 +367,7 @@ echo @$display_alert;
             <td>ผู้ตรวจสอบ</td>
             <td>วันที่เขียนใบลา</td>
             <td>หมายเหตุ</td>
+            <td>เอกสารแนบ</td>
             <td>ดาวน์โหลด PDF</td>
             <td>จัดการ</td>
             <!-- <?php if($_SESSION['uclass']=='0' || $_SESSION['uclass']=='2') {
@@ -388,6 +498,16 @@ echo @$display_alert;
                  </td>
                  <td <?php echo @$bg; ?>>
                     <?php
+                    if(strlen($showLeave->file_doctor_approve) > 0){
+                        echo '<a href="../resource/leave/'.$showLeave->file_doctor_approve.'" target="_blank">ใบรับรองแพทย์</a>';
+                    }
+                    else {
+                        echo "";
+                    }
+                    ?>
+                 </td>
+                 <td <?php echo @$bg; ?>>
+                    <?php
                     if($showLeave->type=='0'){
                         $type = 'ลาป่วย';
                     }else if($showLeave->type=='1'){
@@ -424,7 +544,10 @@ echo @$display_alert;
                     <?php } ?>
                 </td>
                 <td align="left" <?php echo @$bg; ?> style="height: 40px;">
-                    <?php if($_SESSION['uclass']=='0' && ($s==0 )) { ?>
+                    <?php
+                        // if($_SESSION['uclass']=='0' && ($s==0 )) {
+                        if($_SESSION['uclass']=='0' ) {
+                        ?>
                     <a href="?p=leave_detail&key=<?php echo @$showLeave->code; ?>">
                         <div class="button_symbol green">
                             <img src="../media/icons/set/white/detail.png" width="25" height="25" alt=""

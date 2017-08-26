@@ -106,7 +106,13 @@ $getLeaveDetail = $getdata->my_sql_query(NULL, "leave_paper", "code='" . addslas
                     <td align="right">สถานะ</td>
                     <td>
 
-                        <select name="status">
+                        <select name="status" <?php if($getLeaveDetail->status != '0'){ echo "disabled"; } ?>>
+                            <option value="0"
+                                <?php
+                                if($getLeaveDetail->status == '0'){
+                                    echo 'selected';
+                                }
+                                ?> >รอการอนุมัติ</option>
                             <option value="1"
                                 <?php
                                 if($getLeaveDetail->status == '1'){
@@ -135,7 +141,10 @@ $getLeaveDetail = $getdata->my_sql_query(NULL, "leave_paper", "code='" . addslas
                     <input type="hidden" name="s" value="<?php echo $getLeaveDetail->start_date; ?>" />
                     <input type="hidden" name="e" value="<?php echo $getLeaveDetail->end_date; ?>" />
                     <input type="hidden" name="ukey" value="<?php echo $getLeaveDetail->user_key; ?>"/>
-                    <td colspan="4" align="center"><input type="submit" name="save_edit" class="button green" value="บันทึกการแก้ไข">
+                    <td colspan="4" align="center">
+                    <?php if($getLeaveDetail->status == '0'){ ?>
+                        <input type="submit" name="save_edit" class="button green" value="บันทึกการแก้ไข">
+                    <?php } ?>
                     </td>
                 </tr>
             </table>
