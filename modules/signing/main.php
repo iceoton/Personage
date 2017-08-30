@@ -216,8 +216,8 @@ $(document).ready(function(){
   <tr class="aqua_treatment_text" id="<?php echo @$show_checkin->ukey;?>">
     <td align="center" bgcolor="#9be2ff"><?php echo @$i;?></td>
     <td align="center" bgcolor="#9be2ff"><img src="../resource/signing/images/<?php echo @$show_checkin->photo <> ''? @$show_checkin->photo:'noimg.jpg' ;?>" width="50"  alt="" id="photo_border"/></td>
-    <td align="center" bgcolor="#9be2ff"><?php echo @$show_checkin->time;?></td>
-    <td align="center" bgcolor="#9be2ff"><?php echo sql_todate(@$show_checkin->date); ?></td>
+    <td align="center" bgcolor="#9be2ff" class="signing_text_time"><?php echo @$show_checkin->time;?></td>
+    <td align="center" bgcolor="#9be2ff" class="signing_text_time"><?php echo sql_todate(@$show_checkin->date); ?></td>
     <td align="center" bgcolor="#9be2ff"><?php echo @$show_checkin->status;?></td>
   </tr>
   <?php
