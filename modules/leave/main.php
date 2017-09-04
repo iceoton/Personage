@@ -49,14 +49,14 @@ function sql_todate($d){
             var s = ($('#start_date').val()).split("-");
             var e = ($('#end_date').val()).split("-");
             console.log(s + ' ' + e);
-            var date1 = new Date(parseInt(s[2]),parseInt(s[1]),parseInt(s[0]));
-            var date2 = new Date(parseInt(e[2]),parseInt(e[1]),parseInt(e[0]));
+            var date1 = new Date(parseInt(s[2]),parseInt(s[1]-1),parseInt(s[0]));
+            var date2 = new Date(parseInt(e[2]),parseInt(e[1]-1),parseInt(e[0]));
             if(date2.getTime() - date1.getTime() >= 0){
                 var timeDiff = Math.abs(date2.getTime() - date1.getTime());
                 var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 console.log(diffDays);
-                $('#amount_day_placeholder').val(diffDays+1);
-                if(diffDays+1>=3){
+                $('#amount_day_placeholder').val(diffDays);
+                if(diffDays>=3){
                     $('#label_file_doctor_approve, #input_file_doctor_approve').show();
                 }else {
                     $('#label_file_doctor_approve, #input_file_doctor_approve').hide();
