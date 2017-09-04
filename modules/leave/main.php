@@ -55,8 +55,8 @@ function sql_todate($d){
                 var timeDiff = Math.abs(date2.getTime() - date1.getTime());
                 var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 console.log(diffDays);
-                $('#amount_day_placeholder').val(diffDays+1);
-                if(diffDays+1>=3){
+                $('#amount_day_placeholder').val(diffDays);
+                if(diffDays>=3){
                     $('#label_file_doctor_approve, #input_file_doctor_approve').show();
                 }else {
                     $('#label_file_doctor_approve, #input_file_doctor_approve').hide();
