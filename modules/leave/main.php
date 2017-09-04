@@ -49,8 +49,8 @@ function sql_todate($d){
             var s = ($('#start_date').val()).split("-");
             var e = ($('#end_date').val()).split("-");
             console.log(s + ' ' + e);
-            var date1 = new Date(parseInt(s[2]),parseInt(s[1]),parseInt(s[0]));
-            var date2 = new Date(parseInt(e[2]),parseInt(e[1]),parseInt(e[0]));
+            var date1 = new Date(parseInt(s[2]),parseInt(s[1]-1),parseInt(s[0]));
+            var date2 = new Date(parseInt(e[2]),parseInt(e[1]-1),parseInt(e[0]));
             if(date2.getTime() - date1.getTime() >= 0){
                 var timeDiff = Math.abs(date2.getTime() - date1.getTime());
                 var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
